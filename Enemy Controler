@@ -1,0 +1,84 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.AI;
+using UnityEngine.UI;
+using UnityEngine.SceneManagement;
+
+public class enemyControler : MonoBehaviour
+{
+    public float LookRadius = 60f;
+    public float followSpeed = 0.05f;
+
+    public GameObject target;
+    NavMeshAgent agent;
+
+    public Slider slider;
+     
+
+    
+    float Health;
+    
+
+    
+    // Start is called before the first frame update
+    void Start()
+    {
+        target = GameObject.FindGameObjectWithTag("Player");
+        
+        agent = GetComponent<NavMeshAgent>();
+
+       
+        slider.value = 150;
+        Health = slider.value;
+        
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        float Distance = Vector3.Distance(target.transform.position, transform.position);
+
+        if (Distance <= LookRadius && Distance > 5)
+        {
+            
+            Vector3 targrtPos = new Vector3(target.transform.position.x, transform.position.y, target.transform.position.z);
+            transform.position = Vector3.Lerp(transform.position, targrtPos, followSpeed);
+            Facetarget();
+
+        }
+       
+
+    }
+
+    void Facetarget ()
+    {
+
+        Vector3 direction = transform.position - target.transform.position;
+        Quaternion rotation = Quaternion.LookRotation(new Vector3(direction.x, 0, direction.z));
+        
+        transform.rotation = Quaternion.Slerp(transform.rotation, rotation, Time.deltaTime * 5f);
+       
+        
+    }
+    void OnDrawGizmosSelected()
+    {
+
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(transform.position, LookRadius);
+    }
+
+    public void ReduceHealth( float damage)
+    {    
+        slider.value -= damage;
+        Health -= damage;
+        if (Health<=0)
+        {
+            Destroy(gameObject);
+            
+            
+        }
+        
+    }
+    
+}
